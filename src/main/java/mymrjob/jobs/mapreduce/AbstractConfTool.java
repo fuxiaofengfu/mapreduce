@@ -55,7 +55,7 @@ public abstract class AbstractConfTool extends Configured implements Tool {
 		}else{
 			this.handlePath(args,job);
 		}
-		return job.waitForCompletion(false) ? 0 : 1;
+		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
 	/**
