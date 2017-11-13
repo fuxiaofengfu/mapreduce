@@ -5,9 +5,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.io.compress.BZip2Codec;
-import org.apache.hadoop.io.compress.SnappyCodec;
+import org.apache.hadoop.io.WritableComparator;
+import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -158,6 +157,10 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 			return -compareBytes(b1, s1+n1, l1-n1, b2, s2+n2, l2-n2);
 		}
 
+		/*@Override
+		public int compare(WritableComparable a, WritableComparable b) {
+			return super.compare(a, b);
+		}*/
 	}
 
 }
