@@ -51,6 +51,9 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 	protected Job getJob(String[] args, MyJobConf myJobConf) throws IOException {
 
 		Configuration configuration = getConf();
+		if(null == configuration){
+			configuration = new Configuration();
+		}
 		Job job = Job.getInstance(configuration, myJobConf.getJobname());
 
 		job.setJarByClass(myJobConf.getJarByClass());

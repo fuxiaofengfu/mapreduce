@@ -12,6 +12,10 @@ public class MyThreadPool {
 		threadPoolExecutor.execute(runnable);
 	}
 
+	public static void threadPoolStop(){
+		threadPoolExecutor.shutdown();
+	}
+
     private static class MyThread implements ThreadFactory{
 	    @Override
 	    public Thread newThread(Runnable r) {
