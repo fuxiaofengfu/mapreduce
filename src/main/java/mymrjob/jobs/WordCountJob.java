@@ -4,10 +4,16 @@ import mymrjob.jobs.mapreduce.AbstractMRJob;
 import mymrjob.jobs.mapreduce.HandleType;
 import mymrjob.jobs.mapreduce.MyJobConf;
 import mymrjob.jobs.mapreduce.MyWritable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
@@ -22,16 +28,39 @@ public class WordCountJob extends AbstractMRJob {
 	 */
 	@Override
 	public int run(String[] args) throws Exception {
+		int status = super.run(args);
+		return status;
+	}
 
+	@Override
+	public Job getJob(String[] args) throws Exception {
 		MyJobConf myJobConf = new MyJobConf("wordcount",WordCountJob.class,WordCountReducer.class,WordCountMapper.class);
 		myJobConf.setHandleType(HandleType.WORD_COUNT);
 		myJobConf.setReducerOutKey(Text.class);
 		myJobConf.setReducerOutValue(LongWritable.class);
-		int status = super.run(args, myJobConf);
-		return status;
+        return super.getJob(args,myJobConf);
 	}
 
-    private static class WordCountMapper extends Mapper<LongWritable,Text,MyWritable,MyWritable>{
+	/**
+	 * 处理参数路径
+	 *
+	 * @param args
+	 * @param job
+	 */
+	@Override
+	public void handlePath(String[] args, Job job) throws IOException {
+		Path inputpath = new Path(args[0]);
+		Path outputpath = new Path(args[1]);
+		FileInputFormat.addInputPath(job,inputpath);
+		FileOutputFormat.setOutputPath(job,outputpath);
+		Configuration configuration = job.getConfiguration();
+		FileSystem fileSystem = FileSystem.get(configuration);
+		if(fileSystem.exists(outputpath)){
+			fileSystem.delete(outputpath,true);
+		}
+	}
+
+	private static class WordCountMapper extends Mapper<LongWritable,Text,MyWritable,MyWritable>{
 
 		MyWritable keyOut = new MyWritable();
 		MyWritable valueOut = new MyWritable(1);
@@ -109,6 +138,7 @@ public class WordCountJob extends AbstractMRJob {
 			    sum += v.getSum();
 			    stringBuilder.append(String.valueOf(v.getSum()));
 		    }
+		    context.getCounter("myCount","totalWords").increment(sum);
 		    /*logger.info("\nreduce key >>>{};;value>>>>{}",key,stringBuilder.toString());*/
 		    valueOut.set(sum);
 		    keyOut.set(key.getValue());
