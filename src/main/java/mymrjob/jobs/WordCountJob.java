@@ -35,9 +35,8 @@ public class WordCountJob extends AbstractMRJob {
 	@Override
 	public Job getJob(String[] args) throws Exception {
 		MyJobConf myJobConf = new MyJobConf("wordcount",WordCountJob.class,WordCountReducer.class,WordCountMapper.class);
-		myJobConf.setHandleType(HandleType.WORD_COUNT);
-		myJobConf.setReducerOutKey(Text.class);
-		myJobConf.setReducerOutValue(LongWritable.class);
+		myJobConf.setReducerOutKey(MyWritable.class);
+		myJobConf.setReducerOutValue(MyWritable.class);
         return super.getJob(args,myJobConf);
 	}
 
@@ -138,7 +137,7 @@ public class WordCountJob extends AbstractMRJob {
 			    sum += v.getSum();
 			    stringBuilder.append(String.valueOf(v.getSum()));
 		    }
-		    context.getCounter("myCount","totalWords").increment(sum);
+		    context.getCounter("myCount","myTotalWords").increment(sum);
 		    /*logger.info("\nreduce key >>>{};;value>>>>{}",key,stringBuilder.toString());*/
 		    valueOut.set(sum);
 		    keyOut.set(key.getValue());

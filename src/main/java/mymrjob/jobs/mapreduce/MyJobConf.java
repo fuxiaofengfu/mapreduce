@@ -11,8 +11,6 @@ import org.apache.hadoop.mapreduce.Reducer;
  */
 public class MyJobConf {
 
-	private HandleType handleType;//处理方式
-
     private String jobname;
     private Class<?> jarByClass;
     private Class<? extends Mapper> mapper;
@@ -41,7 +39,6 @@ public class MyJobConf {
 		this.reducerOutKey = MyWritable.class;
 		this.reducerOutValue = MyWritable.class;
 		this.jarByClass = jarByClass;
-		this.handleType = HandleType.NULL;
 		this.combiner = AbstractMRJob.MapCombiner.class;
 		this.partitioner = AbstractMRJob.MapPartitioner.class;
 		this.comparator = AbstractMRJob.MapReduceCompare.class;
@@ -109,14 +106,6 @@ public class MyJobConf {
 
 	public void setJarByClass(Class<?> jarByClass) {
 		this.jarByClass = jarByClass;
-	}
-
-	public HandleType getHandleType() {
-		return handleType;
-	}
-
-	public void setHandleType(HandleType handleType) {
-		this.handleType = handleType;
 	}
 
 	public Class<? extends Reducer> getCombiner() {

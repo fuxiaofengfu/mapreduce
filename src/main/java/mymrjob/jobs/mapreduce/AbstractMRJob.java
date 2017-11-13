@@ -9,8 +9,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.MRConfig;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +67,7 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 		job.setOutputKeyClass(myJobConf.getReducerOutKey());
 		job.setOutputValueClass(myJobConf.getReducerOutValue());
 
-		LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
+		//LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
 		//FileOutputFormat.setCompressOutput(job,true);
 		//FileOutputFormat.setOutputCompressorClass(job, BZip2Codec.class);
 		this.handlePath(args,job);
