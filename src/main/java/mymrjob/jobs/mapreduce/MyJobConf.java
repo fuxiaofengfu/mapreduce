@@ -27,6 +27,11 @@ public class MyJobConf {
     private Class<? extends Writable> reducerOutKey;
     private Class<? extends Writable> reducerOutValue;
 
+	public MyJobConf(String jobname, Class<?> jarByClass) {
+		this.jobname = jobname;
+		this.jarByClass = jarByClass;
+	}
+
 	public MyJobConf(String jobname, Class<?> jarByClass, Class<? extends Reducer> reducer, Class<? extends Mapper> mapper) {
 		this.jobname = jobname;
 		this.reducer = reducer;
