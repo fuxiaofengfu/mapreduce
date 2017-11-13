@@ -27,7 +27,7 @@ public class JobControlMonitor {
 							+";jobFailedId="+v.getJobID());
 				}
 				jobControl.stop();
-				System.out.println("jobControl.stop ........");
+				System.out.println("jobControl.stoping ........");
 			}
 		});
 	}

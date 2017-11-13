@@ -33,7 +33,7 @@ public class WordCountJob extends AbstractMRJob {
 
 	@Override
 	public Job getJob(String[] args) throws Exception {
-		MyJobConf myJobConf = new MyJobConf("wordcount",WordCountJob.class,WordCountReducer.class,WordCountMapper.class);
+		MyJobConf myJobConf = new MyJobConf("wordCountJob",WordCountJob.class,WordCountReducer.class,WordCountMapper.class);
 		myJobConf.setReducerOutKey(MyWritable.class);
 		myJobConf.setReducerOutValue(MyWritable.class);
         return super.getJob(args,myJobConf);

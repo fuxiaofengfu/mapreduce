@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadFactory;
 
 public class MyThreadPool {
 
-	private static ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(5);
+	private static ExecutorService threadPoolExecutor = Executors.newSingleThreadExecutor();
 
 	public static void excute(Runnable runnable){
 		threadPoolExecutor.execute(runnable);
@@ -14,6 +14,7 @@ public class MyThreadPool {
 
 	public static void threadPoolStop(){
 		threadPoolExecutor.shutdown();
+		System.out.println("threadPoolExecutor stoping .............");
 	}
 
     private static class MyThread implements ThreadFactory{
