@@ -1,9 +1,9 @@
 package mymrjob.jobs;
 
-import mymrjob.jobs.mapreduce.MyWritable;
-import mymrjob.jobs.mapreduce.AbstractConfTool;
+import mymrjob.jobs.mapreduce.AbstractMRJob;
 import mymrjob.jobs.mapreduce.HandleType;
 import mymrjob.jobs.mapreduce.MyJobConf;
+import mymrjob.jobs.mapreduce.MyWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -11,7 +11,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 
-public class WordCountJob extends AbstractConfTool {
+public class WordCountJob extends AbstractMRJob {
 
 	/**
 	 * Execute the command with the given arguments.
@@ -27,7 +27,8 @@ public class WordCountJob extends AbstractConfTool {
 		myJobConf.setHandleType(HandleType.WORD_COUNT);
 		myJobConf.setReducerOutKey(Text.class);
 		myJobConf.setReducerOutValue(LongWritable.class);
-		return super.run(args, myJobConf);
+		int status = super.run(args, myJobConf);
+		return status;
 	}
 
     private static class WordCountMapper extends Mapper<LongWritable,Text,MyWritable,MyWritable>{
@@ -41,7 +42,7 @@ public class WordCountJob extends AbstractConfTool {
 	     */
 	    @Override
 	    protected void setup(Context context) throws IOException, InterruptedException {
-		    logger.info("mapStart ...............................");
+		    logger.info("\nmapStart ...............................");
 		    super.setup(context);
 	    }
 
@@ -55,11 +56,11 @@ public class WordCountJob extends AbstractConfTool {
 	     */
 	    @Override
 	    protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-		    logger.info("map >>>>> key....{},value.....{}",key,value);
+		    //logger.info("\nmap >>>>> key....{},value.....{}",key,value);
 		    String[] arr = value.toString().split(" ");
 		    for(String str : arr){
 			    keyOut.setValue(str);
-		    	context.write(keyOut,valueOut);
+			    context.write(keyOut,valueOut);
 		    }
 	    }
 
@@ -71,7 +72,7 @@ public class WordCountJob extends AbstractConfTool {
 	    @Override
 	    protected void cleanup(Context context) throws IOException, InterruptedException {
 		    super.cleanup(context);
-		    logger.info("mapFinish ...............................");
+		    logger.info("\nmapFinish ...............................");
 	    }
     }
 
@@ -86,7 +87,7 @@ public class WordCountJob extends AbstractConfTool {
 	     */
 	    @Override
 	    protected void setup(Context context) throws IOException, InterruptedException {
-	    	logger.info("reducer start ...............................");
+	    	logger.info("\nreducer start ...............................");
 		    super.setup(context);
 	    }
 
@@ -102,11 +103,13 @@ public class WordCountJob extends AbstractConfTool {
 	    @Override
 	    protected void reduce(MyWritable key, Iterable<MyWritable> values, Context context) throws IOException, InterruptedException {
 
-		    logger.info("reduce key >>>{};;value>>>>{}",key,values.toString());
             long sum = 0;
-	    	for(MyWritable v : values){
+		    StringBuilder stringBuilder = new StringBuilder();
+		    for(MyWritable v : values){
 			    sum += v.getSum();
+			    stringBuilder.append(String.valueOf(v.getSum()));
 		    }
+		    /*logger.info("\nreduce key >>>{};;value>>>>{}",key,stringBuilder.toString());*/
 		    valueOut.set(sum);
 		    keyOut.set(key.getValue());
 		    context.write(keyOut,valueOut);
@@ -120,7 +123,7 @@ public class WordCountJob extends AbstractConfTool {
 	    @Override
 	    protected void cleanup(Context context) throws IOException, InterruptedException {
 		    super.cleanup(context);
-		    logger.info("reducer finished ...............................");
+		    logger.info("\nreducer finished ...............................");
 	    }
     }
 }
