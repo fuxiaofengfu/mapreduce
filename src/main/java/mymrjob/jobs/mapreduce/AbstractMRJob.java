@@ -5,6 +5,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.mapreduce.Job;
@@ -140,27 +141,34 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 		@Override
 		public int getPartition(MyWritable key, MyWritable value, int numPartitions) {
 			logger.info("\nPartitioner start ...................");
-			return key.hashCode()%numPartitions;
+
+			//super.getPartition(key,value,numPartitions);
+			int partition = key.hashCode() % numPartitions;
+			return partition;
 		}
 	}
 
 	protected static class MapReduceCompare extends WritableComparator{
 
 		public MapReduceCompare() {
-			super(MyWritable.class);
+			super(MyWritable.class,true);
 		}
-		@Override
+		/*@Override
 		public int compare(byte[] b1, int s1, int l1,
 		                   byte[] b2, int s2, int l2) {
 			int n1 = WritableUtils.decodeVIntSize(b1[s1]);
 			int n2 = WritableUtils.decodeVIntSize(b2[s2]);
 			return -compareBytes(b1, s1+n1, l1-n1, b2, s2+n2, l2-n2);
-		}
-
-		/*@Override
-		public int compare(WritableComparable a, WritableComparable b) {
-			return super.compare(a, b);
 		}*/
+
+		@Override
+		public int compare(WritableComparable a, WritableComparable b) {
+
+			MyWritable m1 = (MyWritable) a;
+			MyWritable m2 = (MyWritable) b;
+			int tt = super.compare(m1,m2);
+			return tt;
+		}
 	}
 
 }

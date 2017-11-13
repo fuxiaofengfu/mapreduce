@@ -21,14 +21,6 @@ public class MyWritable extends BinaryComparable implements WritableComparable<B
 	public MyWritable() {
 	}
 
-	/**
-	 * Return n st bytes 0..n-1 from {#getBytes()} are valid.
-	 */
-	@Override
-	public int getLength() {
-		return 0;
-	}
-
 	public MyWritable(long sum) {
 		this.sum = sum;
 	}
@@ -100,6 +92,13 @@ public class MyWritable extends BinaryComparable implements WritableComparable<B
 	}
 
 	/**
+	 * Return n st bytes 0..n-1 from {#getBytes()} are valid.
+	 */
+	@Override
+	public int getLength() {
+		return getBytes().length;
+	}
+	/**
 	 * Return representative byte array for this instance.
 	 */
 	@Override
@@ -166,9 +165,23 @@ public class MyWritable extends BinaryComparable implements WritableComparable<B
 	}
 
 	@Override
-	public int hashCode() {
-		return super.hashCode();
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		MyWritable that = (MyWritable) o;
+
+		return value.equals(that.value);
 	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = result + value.hashCode();
+		return result;
+	}
+
 	static {
 		WritableComparator.define(MyWritable.class, new Comparator());
 	}
@@ -176,7 +189,7 @@ public class MyWritable extends BinaryComparable implements WritableComparable<B
 	/** A WritableComparator optimized for Text keys. */
 	private static class Comparator extends WritableComparator {
 		public Comparator() {
-			super(MyWritable.class);
+			super(MyWritable.class,true);
 		}
 		@Override
 		public int compare(byte[] b1, int s1, int l1,
