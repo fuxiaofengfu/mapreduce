@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * 自定义map输入输出数据类型
  */
-public class MyWritable extends BinaryComparable implements WritableComparable<BinaryComparable> {
+public class MyWritable extends BinaryComparable implements WritableComparable<BinaryComparable>,Serializable {
 
 	private long sum ;
 	private String value = "";
@@ -45,7 +45,7 @@ public class MyWritable extends BinaryComparable implements WritableComparable<B
 	 */
 	@Override
 	public void write(DataOutput out) throws IOException {
-		System.out.println("mywritable write .......");
+		//System.out.println("mywritable write .......");
 		ByteArrayOutputStream byteArrayOutputStream = null;
 		ObjectOutputStream objectOutputStream = null;
 		try{
@@ -79,7 +79,7 @@ public class MyWritable extends BinaryComparable implements WritableComparable<B
 	@Override
 	public void readFields(DataInput in) throws IOException {
 
-		System.out.println("mywritable readFields .......");
+		//System.out.println("mywritable readFields .......");
 
 		sum = in.readLong();
 		value = in.readUTF();

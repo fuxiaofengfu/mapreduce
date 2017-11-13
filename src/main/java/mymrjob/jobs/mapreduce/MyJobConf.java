@@ -1,8 +1,9 @@
 package mymrjob.jobs.mapreduce;
 
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 
 /**
@@ -14,8 +15,13 @@ public class MyJobConf {
 
     private String jobname;
     private Class<?> jarByClass;
-    private Class<? extends Reducer> reducer;
     private Class<? extends Mapper> mapper;
+
+	private Class<? extends Partitioner> partitioner;
+	private Class<? extends WritableComparator> comparator;
+	private Class<? extends Reducer> combiner;
+
+    private Class<? extends Reducer> reducer;
     private Class<? extends Writable> mapOutKey;
     private Class<? extends Writable> mapOutValue;
     private Class<? extends Writable> reducerOutKey;
@@ -31,6 +37,9 @@ public class MyJobConf {
 		this.reducerOutValue = MyWritable.class;
 		this.jarByClass = jarByClass;
 		this.handleType = HandleType.NULL;
+		this.combiner = AbstractMRJob.MapCombiner.class;
+		this.partitioner = AbstractMRJob.MapPartitioner.class;
+		this.comparator = AbstractMRJob.MapReduceCompare.class;
 	}
 
 	public String getJobname() {
@@ -103,5 +112,29 @@ public class MyJobConf {
 
 	public void setHandleType(HandleType handleType) {
 		this.handleType = handleType;
+	}
+
+	public Class<? extends Reducer> getCombiner() {
+		return combiner;
+	}
+
+	public void setCombiner(Class<? extends Reducer> combiner) {
+		this.combiner = combiner;
+	}
+
+	public Class<? extends Partitioner> getPartitioner() {
+		return partitioner;
+	}
+
+	public void setPartitioner(Class<? extends Partitioner> partitioner) {
+		this.partitioner = partitioner;
+	}
+
+	public Class<? extends WritableComparator> getComparator() {
+		return comparator;
+	}
+
+	public void setComparator(Class<? extends WritableComparator> comparator) {
+		this.comparator = comparator;
 	}
 }
