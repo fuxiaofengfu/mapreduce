@@ -1,7 +1,6 @@
 package mymrjob.jobs;
 
 import mymrjob.jobs.mapreduce.AbstractMRJob;
-import mymrjob.jobs.mapreduce.HandleType;
 import mymrjob.jobs.mapreduce.MyJobConf;
 import mymrjob.jobs.mapreduce.MyWritable;
 import org.apache.hadoop.conf.Configuration;
