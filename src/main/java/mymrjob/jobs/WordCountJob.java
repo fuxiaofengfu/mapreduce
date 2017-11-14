@@ -3,8 +3,6 @@ package mymrjob.jobs;
 import mymrjob.jobs.mapreduce.AbstractMRJob;
 import mymrjob.jobs.mapreduce.MyJobConf;
 import mymrjob.jobs.mapreduce.MyWritable;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
