@@ -1,5 +1,6 @@
 package mymrjob.jobs.mapreduce;
 
+import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -18,7 +19,7 @@ public class MyJobConf {
 	private Class<? extends Partitioner> partitioner;
 	private Class<? extends WritableComparator> comparator;
 	private Class<? extends Reducer> combiner;
-
+    private Class<? extends RawComparator> groupComparator;
     private Class<? extends Reducer> reducer;
     private Class<? extends Writable> mapOutKey;
     private Class<? extends Writable> mapOutValue;
@@ -42,6 +43,7 @@ public class MyJobConf {
 		this.combiner = AbstractMRJob.MapCombiner.class;
 		this.partitioner = AbstractMRJob.MapPartitioner.class;
 		this.comparator = AbstractMRJob.MapReduceCompare.class;
+		this.groupComparator = WritableComparator.class;
 	}
 
 	public String getJobname() {
@@ -130,5 +132,13 @@ public class MyJobConf {
 
 	public void setComparator(Class<? extends WritableComparator> comparator) {
 		this.comparator = comparator;
+	}
+
+	public Class<? extends RawComparator> getGroupComparator() {
+		return groupComparator;
+	}
+
+	public void setGroupComparator(Class<? extends RawComparator> groupComparator) {
+		this.groupComparator = groupComparator;
 	}
 }

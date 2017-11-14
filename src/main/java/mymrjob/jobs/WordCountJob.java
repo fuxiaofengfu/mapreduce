@@ -18,19 +18,6 @@ import java.io.IOException;
 
 public class WordCountJob extends AbstractMRJob {
 
-	/**
-	 * Execute the command with the given arguments.
-	 *
-	 * @param args command specific arguments.
-	 * @return exit code.
-	 * @throws Exception
-	 */
-	@Override
-	public int run(String[] args) throws Exception {
-		int status = super.run(args);
-		return status;
-	}
-
 	@Override
 	public Job getJob(String[] args) throws Exception {
 		MyJobConf myJobConf = new MyJobConf("wordCountJob",WordCountJob.class,WordCountReducer.class,WordCountMapper.class);
@@ -51,11 +38,6 @@ public class WordCountJob extends AbstractMRJob {
 		Path outputpath = new Path(args[1]);
 		FileInputFormat.addInputPath(job,inputpath);
 		FileOutputFormat.setOutputPath(job,outputpath);
-		Configuration configuration = job.getConfiguration();
-		FileSystem fileSystem = FileSystem.get(configuration);
-		if(fileSystem.exists(outputpath)){
-			fileSystem.delete(outputpath,true);
-		}
 	}
 
 	private static class WordCountMapper extends Mapper<LongWritable,Text,MyWritable,MyWritable>{

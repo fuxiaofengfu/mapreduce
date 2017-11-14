@@ -1,5 +1,6 @@
 package mymrjob.jobs.mapreduce;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.BinaryComparable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
@@ -19,6 +20,7 @@ public class MyWritable extends BinaryComparable implements WritableComparable<B
 	private Map<Object,Object> data = new HashMap<>();
 
 	public MyWritable() {
+
 	}
 
 	public MyWritable(long sum) {
@@ -69,10 +71,10 @@ public class MyWritable extends BinaryComparable implements WritableComparable<B
 	 * @throws IOException
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public void readFields(DataInput in) throws IOException {
 
 		//System.out.println("mywritable readFields .......");
-
 		sum = in.readLong();
 		value = in.readUTF();
 		int len = WritableUtils.readVInt(in);
@@ -157,11 +159,9 @@ public class MyWritable extends BinaryComparable implements WritableComparable<B
 
 	@Override
 	public String toString() {
-		return "MyWritable{" +
-				"sum=" + sum +
-				", value='" + value + '\'' +
-				", data=" + data.toString() +
-				'}';
+		StringBuilder builder = new StringBuilder();
+		builder.append(value).append("\t").append(sum).append("\t").append(data.toString());
+		return builder.toString();
 	}
 
 	@Override
