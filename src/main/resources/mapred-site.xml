@@ -25,7 +25,7 @@
 
     <property>
         <name>mapreduce.job.reduces</name>
-        <value>1</value>
+        <value>2</value>
         <description>reduce数量设置</description>
     </property>
 
@@ -53,7 +53,7 @@
 
     <property>
         <name>mapreduce.job.maps</name>
-        <value>1</value>
+        <value>22</value>
         <description>定义map数量</description>
     </property>
 

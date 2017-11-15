@@ -63,8 +63,8 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 		job.setCombinerClass(myJobConf.getCombiner());
 		job.setPartitionerClass(myJobConf.getPartitioner());
 		job.setSortComparatorClass(myJobConf.getComparator());
-
 		job.setGroupingComparatorClass(myJobConf.getGroupComparator());
+
 		job.setMapOutputKeyClass(myJobConf.getMapOutKey());
 		job.setMapOutputValueClass(myJobConf.getMapOutValue());
 		job.setOutputKeyClass(myJobConf.getReducerOutKey());
@@ -106,7 +106,6 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 		@Override
 		public int getPartition(MyWritable key, MyWritable value, int numPartitions) {
 			logger.info("\nPartitioner start ...................");
-
 			//super.getPartition(key,value,numPartitions);
 			int partition = key.hashCode() % numPartitions;
 			return partition;
@@ -116,14 +115,7 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 	protected static class MapCombiner extends Reducer <MyWritable,MyWritable,MyWritable,MyWritable>{
 
 		MyWritable valueOut = new MyWritable();
-		/**
-		 * This method is called once for each key. Most applications will define
-		 * their reduce class by overriding this method. The default implementation
-		 * is an identity function.
-		 * @param key
-		 * @param values
-		 * @param context
-		 */
+
 		@Override
 		protected void reduce(MyWritable key, Iterable<MyWritable> values, Context context) throws IOException, InterruptedException {
 
@@ -153,7 +145,7 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 
 		@Override
 		public int compare(WritableComparable a, WritableComparable b) {
-			//System.out.println("myWritable extends comparator .........");
+			System.out.println("map comparator ==================");
 			return super.compare(a,b);
 		}
 	}
@@ -165,6 +157,8 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 
 		@Override
 		public int compare(WritableComparable a, WritableComparable b) {
+
+			logger.info("abstract GroupComparator>>>>>>>>>>>>>>>>>>>>>>>>>");
 			return super.compare(a, b);
 		}
 	}

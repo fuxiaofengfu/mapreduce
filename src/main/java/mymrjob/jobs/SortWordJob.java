@@ -6,16 +6,16 @@ import mymrjob.jobs.mapreduce.MyWritable;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 
@@ -29,6 +29,9 @@ public class SortWordJob extends AbstractMRJob {
 
 		MyJobConf myJobConf = new MyJobConf("sortWordJob",SortWordJob.class,SortWordJobReducer.class,SortWordJobMapper.class);
 		myJobConf.setGroupComparator(SortWordJobGroupComparator.class);
+		myJobConf.setPartitioner(SortWordJobPartitioner.class);
+		//因为这里只是排序，不需要求和，所以这里不能使用默认的combiner
+		myJobConf.setCombiner(Reducer.class);
 		return super.getJob(args,myJobConf);
 	}
 
@@ -48,13 +51,11 @@ public class SortWordJob extends AbstractMRJob {
 		FileOutputFormat.setOutputPath(job,outPutPath);
 
 		String[] input1 = args[0].split(",");
-
 		MultipleInputs.addInputPath(job,new Path(input1[0]), TextInputFormat.class,SortWordJobMapper.class);
 		MultipleInputs.addInputPath(job,new Path(input1[1]), TextInputFormat.class,SortWordJobMapper.class);
-
-		MultipleOutputs.addNamedOutput(job,"10aaa", TextOutputFormat.class,Text.class,LongWritable.class);
-		MultipleOutputs.addNamedOutput(job,"10cc", TextOutputFormat.class,Text.class,LongWritable.class);
-		MultipleOutputs.addNamedOutput(job,"101vb", TextOutputFormat.class,Text.class,LongWritable.class);
+		//MultipleOutputs.addNamedOutput(job,"10aaa", TextOutputFormat.class,Text.class,LongWritable.class);
+		//MultipleOutputs.addNamedOutput(job,"10cc", TextOutputFormat.class,Text.class,LongWritable.class);
+		//MultipleOutputs.addNamedOutput(job,"101vb", TextOutputFormat.class,Text.class,LongWritable.class);
 	}
 
 	private static class SortWordJobMapper extends Mapper<LongWritable,Text,MyWritable,MyWritable>{
@@ -68,14 +69,30 @@ public class SortWordJob extends AbstractMRJob {
 		 */
 		@Override
 		protected void setup(Context context) throws IOException, InterruptedException {
+			System.out.println("map start ...........");
 		}
 
 		@Override
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String[] values = value.toString().split("\t");
-            kyout.setValue(values[0]);
-            vlout.setSum(Long.parseLong(values[1]));
+
+            if(values.length <=1){
+            	context.getCounter("myCounter","bad lines num =="+value).increment(1);
+            	return;
+            }
+			vlout.setValue(values[0]);
+			kyout.setSum(Long.parseLong(values[1]));
 			context.write(kyout,vlout);
+		}
+
+		/**
+		 * Called once at the end of the task.
+		 *
+		 * @param context
+		 */
+		@Override
+		protected void cleanup(Context context) throws IOException, InterruptedException {
+			System.out.println("map end .......................");
 		}
 	}
 
@@ -87,31 +104,38 @@ public class SortWordJob extends AbstractMRJob {
 		}
 	}
 
+	private static class SortWordJobPartitioner extends Partitioner<MyWritable,MyWritable> {
+		@Override
+		public int getPartition(MyWritable key, MyWritable value, int numPartitions) {
+			logger.info("\nPartitioner start ...................");
+			int partition = value.hashCode() % numPartitions;
+			return partition;
+		}
+	}
 
 	private static class SortWordJobReducer extends Reducer<MyWritable,MyWritable,Text,LongWritable>{
-		MultipleOutputs outputs;
+		//MultipleOutputs outputs;
 
 		Text keyOut = new Text();
 		LongWritable valueOut = new LongWritable();
 
 		@Override
 		protected void setup(Context context) throws IOException, InterruptedException {
-			outputs = new MultipleOutputs(context);
+			//outputs = new MultipleOutputs(context);
+			logger.info("reduce start ..............................");
 		}
 
 		@Override
 		protected void reduce(MyWritable key, Iterable<MyWritable> values, Context context) throws IOException, InterruptedException {
-
-			long sum = 0;
 			for(MyWritable v : values){
-				sum += v.getSum();
+				keyOut.set(v.getValue());
+				valueOut.set(key.getSum());
+				context.write(keyOut,valueOut);
 			}
-			valueOut.set(sum);
-			keyOut.set(key.getValue());
-			outputs.write("10aaa",keyOut,valueOut,"o1");
-			outputs.write("10cc",keyOut,valueOut,"o2");
-			outputs.write("101vb",keyOut,valueOut,"o3");
-			context.write(keyOut,valueOut);
+			//outputs.write("10aaa",keyOut,valueOut,"o1");
+			//outputs.write("10cc",keyOut,valueOut,"o2");
+			//outputs.write("101vb",keyOut,valueOut,"o3");
+			System.out.println("reduce ************************");
 		}
 
 		/**
@@ -121,28 +145,26 @@ public class SortWordJob extends AbstractMRJob {
 		 */
 		@Override
 		protected void cleanup(Context context) throws IOException, InterruptedException {
-			outputs.close();
+			//outputs.close();
+			System.out.println("reduce end *************************");
 		}
 	}
+
 
 	private static class SortWordJobGroupComparator extends WritableComparator {
 
 		public SortWordJobGroupComparator() {
+			//这儿是map阶段输出的key的类型
 			super(MyWritable.class,true);
 		}
 
 		@Override
-		public int compare(Object a, Object b) {
-			MyWritable a1 = (MyWritable) a;
-			MyWritable a2 = (MyWritable) b;
-			if(a1.getValue().hashCode() == a2.hashCode()){
-				if(a1.getSum() > a2.getSum()){
-                    return 1;
-				}
-				if(a1.getSum() < a2.getSum()){
-					return -1;
-				}
-			}
+		public int compare(WritableComparable a, WritableComparable b) {
+
+
+			System.out.println("group comparator----------");
+
+
 			return -super.compare(a, b);
 		}
 	}
