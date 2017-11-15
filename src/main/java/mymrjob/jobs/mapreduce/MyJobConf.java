@@ -43,7 +43,7 @@ public class MyJobConf {
 		this.combiner = AbstractMRJob.MapCombiner.class;
 		this.partitioner = AbstractMRJob.MapPartitioner.class;
 		this.comparator = AbstractMRJob.MapReduceCompare.class;
-		this.groupComparator = WritableComparator.class;
+		this.groupComparator = AbstractMRJob.GroupComparator.class;
 	}
 
 	public String getJobname() {

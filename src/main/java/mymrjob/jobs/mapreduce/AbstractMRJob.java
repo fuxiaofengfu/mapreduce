@@ -71,6 +71,7 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 		job.setOutputValueClass(myJobConf.getReducerOutValue());
 
 		//LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
+
 		//FileOutputFormat.setCompressOutput(job,true);
 		//FileOutputFormat.setOutputCompressorClass(job, BZip2Codec.class);
 		this.handlePath(args,job);
@@ -79,7 +80,6 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 		if(fileSystem.exists(outputpath)){
 			fileSystem.delete(outputpath,true);
 		}
-
 		return job;
 	}
 
@@ -155,6 +155,17 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 		public int compare(WritableComparable a, WritableComparable b) {
 			//System.out.println("myWritable extends comparator .........");
 			return super.compare(a,b);
+		}
+	}
+
+	protected static class GroupComparator extends WritableComparator{
+		public GroupComparator() {
+			super(MyWritable.class, true);
+		}
+
+		@Override
+		public int compare(WritableComparable a, WritableComparable b) {
+			return super.compare(a, b);
 		}
 	}
 

@@ -23,18 +23,39 @@
         <!--<description>开启本地库支持</description>-->
     <!--</property>-->
 
-    <!--<property>-->
-        <!--<name>mapreduce.job.reduces</name>-->
-        <!--<value>11</value>-->
-        <!--<description>reduce数量设置</description>-->
-    <!--</property>-->
+    <property>
+        <name>mapreduce.job.reduces</name>
+        <value>1</value>
+        <description>reduce数量设置</description>
+    </property>
 
-    <!--<property>-->
-        <!--<name>dfs.blocksize</name>-->
-        <!--<value>1</value>-->
-        <!--<description>文件块大小(byte)</description>-->
-    <!--</property>-->
+    <property>
+        <name>dfs.blocksize</name>
+        <value>10</value>
+        <description>文件块大小(byte)</description>
+    </property>
 
+    <property>
+        <name>fs.local.block.size</name>
+        <value>10485760</value>
+        <description>文件块大小(byte)1024*1024</description>
+    </property>
+
+    <property>
+        <name>mapreduce.input.fileinputformat.split.maxsize</name>
+        <value>10485760</value>
+    </property>
+
+    <property>
+        <name>mapreduce.input.fileinputformat.split.minsize</name>
+        <value>10485760</value>
+    </property>
+
+    <property>
+        <name>mapreduce.job.maps</name>
+        <value>1</value>
+        <description>定义map数量</description>
+    </property>
 
     <!--<property>-->
         <!--<name>fs.defaultFS</name>-->

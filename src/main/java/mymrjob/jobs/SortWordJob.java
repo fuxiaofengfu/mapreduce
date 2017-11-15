@@ -11,6 +11,8 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -38,12 +40,17 @@ public class SortWordJob extends AbstractMRJob {
 	 */
 	@Override
 	public void handlePath(String[] args, Job job) throws IOException {
-		Path inputPath = new Path(args[0]);
-		Path outPutPath = new Path(args[1]);
+
 		FileInputFormat.setInputDirRecursive(job,true);
 		FileInputFormat.setInputPaths(job,args[0]);
 		//FileInputFormat.addInputPath(job,inputPath);
+		Path outPutPath = new Path(args[1]);
 		FileOutputFormat.setOutputPath(job,outPutPath);
+
+		String[] input1 = args[0].split(",");
+
+		MultipleInputs.addInputPath(job,new Path(input1[0]), TextInputFormat.class,SortWordJobMapper.class);
+		MultipleInputs.addInputPath(job,new Path(input1[1]), TextInputFormat.class,SortWordJobMapper.class);
 
 		MultipleOutputs.addNamedOutput(job,"10aaa", TextOutputFormat.class,Text.class,LongWritable.class);
 		MultipleOutputs.addNamedOutput(job,"10cc", TextOutputFormat.class,Text.class,LongWritable.class);
@@ -71,6 +78,16 @@ public class SortWordJob extends AbstractMRJob {
 			context.write(kyout,vlout);
 		}
 	}
+
+	private static class SortWordJobMapper2 extends Mapper<LongWritable,Text,MyWritable,MyWritable>{
+
+		@Override
+		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+//			super.map(key, value, context);
+		}
+	}
+
+
 	private static class SortWordJobReducer extends Reducer<MyWritable,MyWritable,Text,LongWritable>{
 		MultipleOutputs outputs;
 
