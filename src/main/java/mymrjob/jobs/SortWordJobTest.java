@@ -36,19 +36,25 @@ public class SortWordJobTest extends Configured implements Tool{
 		Configuration conf = getConf();
 		Job job = Job.getInstance(conf,"sortWord");
 
+		//conf.set("mapreduce.input.keyvaluelinerecordreader.key.value.separator",",");
+		//job.setInputFormatClass(KeyValueTextInputFormat.class);
 		job.setSortComparatorClass(MySort.class);
 		job.setGroupingComparatorClass(MySort2.class);
 		job.setPartitionerClass(MyPartitioner.class);
 		job.setCombinerClass(MyCombiner.class);
 		//job.addCacheFile();
-		job.setMapperClass(MyMapper.class);
+		job.setMapperClass(KeyValueMyMapper.class);
+		//job.setMapperClass(MyMapper.class);
 		job.setReducerClass(MyReducer.class);
 
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(LongWritable.class);
 
+		//KeyValueTextInputFormat.setInputDirRecursive(job,true);
+		//KeyValueTextInputFormat.setInputPaths(job,args[0]);
 		FileInputFormat.setInputDirRecursive(job,true);
 		FileInputFormat.setInputPaths(job,args[0]);
+
 		Path outPutPath = new Path(args[1]);
 		FileOutputFormat.setOutputPath(job,outPutPath);
 
@@ -75,6 +81,27 @@ public class SortWordJobTest extends Configured implements Tool{
 
 		@Override
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+			String[] arr = value.toString().split("\t");
+			System.out.println(key+";value="+value.toString());
+			context.write(new Text(arr[0]+SPLIT_REGEX+arr[1]),new LongWritable(Long.parseLong(arr[1])));
+		}
+	}
+
+
+	private static class KeyValueMyMapper extends Mapper<Text,Text,Text,LongWritable>{
+
+		/**
+		 * Called once at the beginning of the task.
+		 *
+		 * @param context
+		 */
+		@Override
+		protected void setup(Context context) throws IOException, InterruptedException {
+			System.out.println("map start  ...........");
+		}
+
+		@Override
+		protected void map(Text key, Text value, Context context) throws IOException, InterruptedException {
 			String[] arr = value.toString().split("\t");
 			System.out.println(key+";value="+value.toString());
 			context.write(new Text(arr[0]+SPLIT_REGEX+arr[1]),new LongWritable(Long.parseLong(arr[1])));
