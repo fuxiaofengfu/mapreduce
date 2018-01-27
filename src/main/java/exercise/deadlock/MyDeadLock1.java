@@ -18,10 +18,11 @@ public class MyDeadLock1 {
 				System.out.println(new Date().toString() + " LockA 开始执行");
 				while(true){
 					synchronized (MyDeadLock1.obj1) {
-						System.out.println(new Date().toString() + " LockA 锁住 obj1");
+						System.out.println("Thread LockA得到锁obj1,Thread LockA被锁住");
 						Thread.sleep(3000); // 此处等待是给B能锁住机会
+						System.out.println("Thread LockA 获取锁obj2中.....");
 						synchronized (MyDeadLock1.obj2) {
-							System.out.println(new Date().toString() + " LockA 锁住 obj2");
+							System.out.println("Thread LockA得到锁obj2,Thread LockA 被锁住 _______");
 							Thread.sleep(60 * 1000); // 为测试，占用了就不放
 						}
 					}
@@ -37,10 +38,11 @@ public class MyDeadLock1 {
 				System.out.println(new Date().toString() + " LockB 开始执行");
 				while(true){
 					synchronized (MyDeadLock1.obj2) {
-						System.out.println(new Date().toString() + " LockB 锁住 obj2");
+						System.out.println("Thread LockB得到锁 obj2, Thread LockB 被锁住");
 						Thread.sleep(3000); // 此处等待是给A能锁住机会
+						System.out.println("Thread LockB 获取锁obj1中.....");
 						synchronized (MyDeadLock1.obj1) {
-							System.out.println(new Date().toString() + " LockB 锁住 obj1");
+							System.out.println( "Thread LockB 得到锁obj1,Thread LockB 被锁住 ______");
 							Thread.sleep(60 * 1000); // 为测试，占用了就不放
 						}
 					}
