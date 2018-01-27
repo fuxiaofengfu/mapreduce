@@ -145,8 +145,11 @@ public abstract class AbstractMRJob extends Configured implements Tool {
 
 		@Override
 		public int compare(WritableComparable a, WritableComparable b) {
-			System.out.println("map comparator ==================");
-			return super.compare(a,b);
+			System.out.println("abstract map comparator ==================");
+			MyWritable a1 = (MyWritable) a;
+			MyWritable b1 = (MyWritable) b;
+			return super.compare(a1,b1);
+			//return super.compare(a,b);
 		}
 	}
 

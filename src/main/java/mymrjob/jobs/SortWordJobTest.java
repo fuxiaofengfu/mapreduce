@@ -21,6 +21,8 @@ import java.util.Iterator;
 
 public class SortWordJobTest extends Configured implements Tool{
 
+	private static String test_a="543";
+
 	private static final String SPLIT_REGEX = "===";
 
 	/**
@@ -63,7 +65,9 @@ public class SortWordJobTest extends Configured implements Tool{
 			fileSystem.delete(outPutPath,true);
 		}
 
-		return job.waitForCompletion(true) ? 0 : 1;
+		int result =  job.waitForCompletion(true) ? 0 : 1;
+		System.out.println("***************"+test_a);
+		return result;
 		//return 0;
 	}
 
@@ -97,6 +101,7 @@ public class SortWordJobTest extends Configured implements Tool{
 		 */
 		@Override
 		protected void setup(Context context) throws IOException, InterruptedException {
+			test_a="retyu";
 			System.out.println("map start  ...........");
 		}
 

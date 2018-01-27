@@ -24,6 +24,8 @@ import java.io.IOException;
  */
 public class SortWordJob extends AbstractMRJob {
 
+	private static final String SPLIT_REGEX="=====";
+
 	@Override
 	public Job getJob(String[] args) throws Exception {
 
@@ -43,7 +45,6 @@ public class SortWordJob extends AbstractMRJob {
 	 */
 	@Override
 	public void handlePath(String[] args, Job job) throws IOException {
-
 		FileInputFormat.setInputDirRecursive(job,true);
 		FileInputFormat.setInputPaths(job,args[0]);
 		//FileInputFormat.addInputPath(job,inputPath);
@@ -51,6 +52,7 @@ public class SortWordJob extends AbstractMRJob {
 		FileOutputFormat.setOutputPath(job,outPutPath);
 
 		String[] input1 = args[0].split(",");
+
 		MultipleInputs.addInputPath(job,new Path(input1[0]), TextInputFormat.class,SortWordJobMapper.class);
 		MultipleInputs.addInputPath(job,new Path(input1[1]), TextInputFormat.class,SortWordJobMapper.class);
 		//MultipleOutputs.addNamedOutput(job,"10aaa", TextOutputFormat.class,Text.class,LongWritable.class);
@@ -80,8 +82,13 @@ public class SortWordJob extends AbstractMRJob {
             	context.getCounter("myCounter","bad lines num =="+value).increment(1);
             	return;
             }
-			vlout.setValue(values[0]);
-			kyout.setSum(Long.parseLong(values[1]));
+
+            String txtkey = values[0];
+            String txtValue = values[1];
+			kyout.setValue(txtkey+"===="+txtValue);
+            vlout.setSum(Long.parseLong(txtValue));
+            /*vlout.setValue(values[0]);
+			kyout.setSum(Long.parseLong(values[1]));*/
 			context.write(kyout,vlout);
 		}
 
@@ -108,8 +115,13 @@ public class SortWordJob extends AbstractMRJob {
 		@Override
 		public int getPartition(MyWritable key, MyWritable value, int numPartitions) {
 			logger.info("\nPartitioner start ...................");
-			int partition = value.hashCode() % numPartitions;
-			return partition;
+			String txtKey = key.getValue().split("====")[0];
+
+			MyWritable myWritable = new MyWritable();
+			myWritable.setValue(txtKey);
+            int hashCode = myWritable.hashCode();
+			int partition = hashCode % numPartitions;
+			return 0;
 		}
 	}
 
@@ -127,9 +139,11 @@ public class SortWordJob extends AbstractMRJob {
 
 		@Override
 		protected void reduce(MyWritable key, Iterable<MyWritable> values, Context context) throws IOException, InterruptedException {
+
 			for(MyWritable v : values){
-				keyOut.set(v.getValue());
-				valueOut.set(key.getSum());
+				keyOut.set(key.getValue());
+				//keyOut.set(v.getValue());
+				valueOut.set(v.getSum());
 				context.write(keyOut,valueOut);
 			}
 			//outputs.write("10aaa",keyOut,valueOut,"o1");
@@ -150,7 +164,6 @@ public class SortWordJob extends AbstractMRJob {
 		}
 	}
 
-
 	private static class SortWordJobGroupComparator extends WritableComparator {
 
 		public SortWordJobGroupComparator() {
@@ -161,11 +174,24 @@ public class SortWordJob extends AbstractMRJob {
 		@Override
 		public int compare(WritableComparable a, WritableComparable b) {
 
-
-			System.out.println("group comparator----------");
-
-
-			return -super.compare(a, b);
+			MyWritable a1 = (MyWritable) a;
+			MyWritable b1 = (MyWritable) b;
+			String[] arr1 = a1.getValue().split("====");
+			String[] arr2 = b1.getValue().split("====");
+			if(arr1[0].equals(arr2[0])){
+				long num1 = Long.parseLong(arr1[1]);
+				long num2 = Long.parseLong(arr2[1]);
+				if(num1 > num2){
+					return -1;
+				}
+				if(num1 < num2){
+					return -1;
+				}
+				return 0;
+			}
+			MyWritable myWritable1 = new MyWritable(arr1[0]);
+			MyWritable myWritable2 = new MyWritable(arr2[0]);
+			return arr1[0].compareTo(arr1[0]);
 		}
 	}
 }
